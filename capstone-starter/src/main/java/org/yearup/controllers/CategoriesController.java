@@ -70,7 +70,7 @@ public class CategoriesController
     }
 
     // add annotation to call this method for a PUT (update) action - the url path must include the categoryId
-    @RequestMapping(path = "/categories/{categoryId}", method = RequestMethod.PUT)
+    @RequestMapping(path = "/categories/{id}", method = RequestMethod.PUT)
     // add annotation to ensure that only an ADMIN can call this function
     public void updateCategory(@PathVariable int id, @RequestBody Category category)
     {
