@@ -33,7 +33,8 @@ public class CategoriesController
     public List<Category> getAll()
     {
         // find and return all categories
-        return categoryDao.getAllCategories();
+        List<Category> categories = categoryDao.getAllCategories();
+        return categories;
     }
 
     // add the appropriate annotation for a get action
@@ -69,17 +70,25 @@ public class CategoriesController
     }
 
     // add annotation to call this method for a PUT (update) action - the url path must include the categoryId
+    @RequestMapping(path = "/categories/{categoryId}", method = RequestMethod.PUT)
     // add annotation to ensure that only an ADMIN can call this function
     public void updateCategory(@PathVariable int id, @RequestBody Category category)
     {
         // update the category by id
+        categoryDao.update(id, category);
+
     }
 
 
     // add annotation to call this method for a DELETE action - the url path must include the categoryId
+    @RequestMapping(path = "/categories/{id}", method = RequestMethod.DELETE)
     // add annotation to ensure that only an ADMIN can call this function
+    @RolesAllowed("ADMIN")
+    // add annotation to specify the status code being returned
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCategory(@PathVariable int id)
     {
         // delete the category by id
+        categoryDao.delete(id);
     }
 }

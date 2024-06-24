@@ -1,34 +1,78 @@
 package org.yearup.data.mysql;
 
+import org.apache.commons.dbcp2.BasicDataSource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.yearup.data.CategoryDao;
 import org.yearup.models.Category;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao
 {
+    private DataSource dataSource;
+    @Autowired
     public MySqlCategoryDao(DataSource dataSource)
     {
         super(dataSource);
+        this.dataSource = dataSource;
     }
 
     @Override
     public List<Category> getAllCategories()
     {
         // get all categories
-        return null;
+        List<Category> categories = new ArrayList<>();
+        String sql = "SELECT * FROM categories;";
+
+        try (Connection connection = dataSource.getConnection()) {
+            ResultSet row = connection.createStatement().executeQuery(sql);
+
+            while (row.next())
+            {
+                Category category = new Category();
+                category.setCategoryId(row.getInt("category_id"));
+                category.setName(row.getString("name"));
+                category.setDescription(row.getString("description"));
+
+                categories.add(category);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return categories;
     }
 
     @Override
     public Category getById(int categoryId)
     {
         // get category by id
-        return null;
+        Category category = null;
+        String sql = "SELECT * FROM categories WHERE category_id =?;";
+        try (Connection connection = dataSource.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, categoryId);
+
+            try(ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    category = new Category();
+                    category.setCategoryId(rs.getInt("category_id"));
+                    category.setName(rs.getString("name"));
+                    category.setDescription(rs.getString("description"));
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return category;
     }
 
     @Override
